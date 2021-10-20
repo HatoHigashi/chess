@@ -1,66 +1,96 @@
 import tkinter as tk
 from tkinter import Tk, Canvas, Frame, BOTH
 
-chess_piece_type = {('p',1),('n',2),('b',3),('r',4),('q',5),('k',6)}
+chess_piece_type = {(1,'p'),(2,'n'),(3,'b'),(4,'r'),(5,'q'),(6,'k')}
 
-class frame(tk.Frame):
+class Fenetre(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
         self.pack()
-        self.create_widgets()     
+        self.master.title("Chess")
+        self.cases = self.create_widgets() 
 
     def create_widgets(self):
 
-        self.master.title("Colours")
-        canvas = Canvas(self, width=1600, height=900)
-        x1=30
-        y1=30
-        positions = [x1,y1,x1+100,y1+100]
-        for i in range(4):
-            for j in range (4):
-                case(8-i,2*j,canvas, positions)
-                positions=[x1+100,y1,x1+200,y1+100]
-                print(positions)
-                case(8-i,2*j+1,canvas,positions)
-                #canvas.create_rectangle(x1, y1, x1+100, y1+100,outline="brown", fill="#000") #(x1,y1,x2,y2), où (x1,y1) pos du top-left et (x2,y2) du bot-right
-                #canvas.create_rectangle(x1+100 , y1, x1+200, y1+100,outline="brown", fill="#fff")
-                x1 = x1 + 200
-                print(positions)
-            y1 = y1+100
-            x1 = 30
-            for k in range(4):   
-                #canvas.create_rectangle(x1, y1, x1+100, y1+100,outline="brown", fill="#fff") #(x1,y1,x2,y2), où (x1,y1) pos du top-left et (x2,y2) du bot-right
-                #canvas.create_rectangle(x1+100 , y1, x1+200, y1+100,outline="brown", fill="#000")  
-                x1 = x1 + 200
-            y1 = y1+100
-            x1=30
-                           
-        
-        self.init = tk.Button(self, text="Initialiser", fg='blue', command=board)
+        canvas_board = Canvas(self, width=1000, height=1080)
+        canvas_manager = Canvas(self, width=920, height=1080)
+        board = Board(self, canvas_board)
+        manager = Manager(self, canvas_manager)
+        self.init_board = tk.Button(self, text="Initialiser Board", fg='blue', command=Board(self,canvas_board))
+        self.init_manager = tk.Button(self, text="Initialiser Manager", fg='black', command=Manager(self, canvas_manager))
         self.quit = tk.Button(self, text="QUIT", fg="red",
                               command=self.master.destroy)
-
-        self.init.pack(side="top")
+        self.init_board.pack(side="top")
         self.quit.pack(side="bottom")
+        self.init_manager.pack(side='top')
         self.pack(fill=BOTH, expand=1)
-        canvas.pack(fill=BOTH, expand=1)
+        canvas_board.pack(fill=BOTH, expand=1)
+        canvas_manager.pack(fill=BOTH, expand=1)
+                   
+class Manager():
 
-def dump():
-    print("Dump")
-    return 1
+    def __init__(self, frame, canvas):
+        self.frame=frame
+        self.canvas=canvas
 
-class board(tk.Frame):
+class Board():
 
-    def __init__(self):
+    def __init__(self, frame, canvas):
+
+        self.frame = frame
+        self.canvas = canvas
         self.cases = []
-        can = Canvas(self)
-        for i in range(1,9):
-            row = []
-            for j in range(1,9):
-                row.append(case(i,j,can))
-            self.cases.append(row)
-        print(self)
+        
+        x1,y1=100,100
+        x2,y2=x1+100,y1+100
+        for i in range(8):
+            dump = []
+            for j in range (4):
+                positions = [x1,y1,x2,y2]
+                #print(positions)
+                dump.append(Case(8-i,2*j,canvas, positions))
+                x1,x2=x1+100,x2+100
+                positions = [x1,y1,x2,y2]
+                #print(positions)
+                dump.append(Case(8-i,2*j+1,canvas,positions))
+                x1,x2=x1+100,x2+100
+            self.cases.append(dump)
+            x1,y1=100,y1+100
+            x2,y2 = x1+100,y1+100
+        
+        # for i in range(len(self.cases)):
+        #     for j in range(len(self.cases[i])):
+        #         print(self.cases[i][j])
+
+        for i in range(len(self.cases)):
+            if i==1 | i==6:
+                for j in range(len(self.cases[i])):
+                    self.cases[i][j].place_Pawn()
+            elif i==0:
+                self.cases[i][0].place_Piece(4)
+                self.cases[i][1].place_Piece(2)
+                self.cases[i][2].place_Piece(3)
+                self.cases[i][3].place_Piece(5)
+                self.cases[i][4].place_Piece(6)
+                self.cases[i][5].place_Piece(3)
+                self.cases[i][6].place_Piece(2)
+                self.cases[i][7].place_Piece(4)
+            elif i==7:
+                self.cases[i][0].place_Piece(4)
+                self.cases[i][1].place_Piece(2)
+                self.cases[i][2].place_Piece(3)
+                self.cases[i][3].place_Piece(6)
+                self.cases[i][4].place_Piece(5)
+                self.cases[i][5].place_Piece(3)
+                self.cases[i][6].place_Piece(2)
+                self.cases[i][7].place_Piece(4)
+            else:
+                for j in range(len(self.cases[i])):
+                    self.cases[i][j].place_Piece(0)
+                    
+                    
+
 
     def __str__(self):
         dump=""
@@ -74,16 +104,14 @@ class board(tk.Frame):
             #print(dump)
         return dump
 
-class case():
+class Case():
 
     def __init__(self,x,y,canvas,positions):
-        self.coordonate = coordonates(int(x),int(y))
+        self.coordonate = Coordonates(int(x),int(y))
         self.color = self.coordonate.set_color()
-        x1 = positions[0]
-        y1 = positions[1]
-        x2 = positions[2]
-        y2 = positions[3]
+        x1,y1,x2,y2 = positions[0],positions[1],positions[2],positions[3]
         self.case = canvas.create_rectangle(x1,y1,x2,y2,outline="brown", fill=self.color)
+        self
 
     def __str__(self):
         dump = self.coordonate.__str__()
@@ -94,12 +122,15 @@ class case():
         return self.coordonate
     def get_color(self):
         return self.color
+
+    def place_Piece(self,num):
+        pass
     
-class coordonates():
+class Coordonates():
 
     def __init__(self,x,y):
         self.x = self.alpha_coord(x)
-        self.y = str(y)
+        self.y = str(y+1)
         
     def __str__(self):
         dump = "("+self.x+","+self.y+")"
@@ -128,12 +159,56 @@ class coordonates():
         pos = int(ord(a)-96)
         return pos
 
-class piece():
-    def __init__(self,type):
-        self.type = type
+class Piece():
+    def __init__(self,type,color,coordonates):
+        if type == 1 :
+            self.type = Pawn()
+        elif type == 2 :
+            self.type = Knight()
+        elif type == 3 :
+            self.type = Bishop()
+        elif type == 4 :
+            self.type = Rook()
+        elif type == 5 :
+            self.type = Queen()
+        elif type == 6 :
+            self.type = King()
+        else:
+            self.type = 0
+        self.color = color #0 is black, 1 is white
+        self.coordonates = coordonates
+
+    def set_image(type):
+        pass
+
+class Pawn(Piece):
+    pass
+
+class Knight(Piece):
+    pass
+
+class Bishop(Piece):
+    pass
+
+class Rook(Piece):
+    pass
+
+class Queen(Piece):
+    pass
+
+class King(Piece):
+    pass
+
+class Mouvement():
+    def __init__(self,start,x,y):
+        self.start = start #Coordonates
+        self.x = x #Horizontal mvt
+        self.y = y #Vertical mvt
+
+
 
 root = tk.Tk()
 root.attributes('-fullscreen', True)
 root.geometry("1920x1080")
-app = frame(master=root)
+app = Fenetre(master=root)
 app.mainloop()
