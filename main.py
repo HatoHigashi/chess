@@ -11,6 +11,7 @@ class Fenetre(tk.Frame):
 
     def create_widgets(self):
         board = Board(self)
+        board.create_widgets()
         self.init_board = tk.Button(self, text="Initialiser Board", fg='blue', command=Board(self))
         self.quit = tk.Button(self, text="QUIT", fg="red",command=self.master.destroy)
         self.init_board.pack(side="top")
@@ -24,7 +25,20 @@ class Board(tk.Frame):
 
         self.cases = []
         self.labels = []
-
+                    
+    def __str__(self):
+        dump=""
+        for i in self.cases:
+            #print(i)
+            dump2 = ""
+            for j in i:
+                #print(j)
+                dump2=dump2 + j.__str__()
+            dump = dump + dump2+"\n"
+            #print(dump)
+        return dump
+    
+    def create_widgets(self):
         x1,y1=100,100
         x2,y2=x1+100,y1+100
         id = StringVar()
@@ -83,18 +97,6 @@ class Board(tk.Frame):
             else:
                 for j in range(len(self.cases[i])):
                     self.cases[i][j].place_Piece(0)
-                    
-    def __str__(self):
-        dump=""
-        for i in self.cases:
-            #print(i)
-            dump2 = ""
-            for j in i:
-                #print(j)
-                dump2=dump2 + j.__str__()
-            dump = dump + dump2+"\n"
-            #print(dump)
-        return dump
 
 class Manager(tk.Frame):
     def __init__(self, parent=None):
